@@ -1,0 +1,17 @@
+{
+  "_说明": "这是配置模板。本地运行时复制为 config.json 并填入密钥；云端部署用环境变量注入，不需要 config.json。",
+  "port": 8756,
+  "accessToken": "",
+  "vision": {
+    "baseURL": "https://opencode.ai/zen/go/v1/chat/completions",
+    "apiKey": "",
+    "model": "deepseek-v4.1-flash"
+  },
+  "analysis": {
+    "baseURL": "https://api.deepseek.com/chat/completions",
+    "apiKey": "",
+    "model": "deepseek-v4-pro",
+    "temperature": 0.4,
+    "maxTokens": 16000
+  }
+}

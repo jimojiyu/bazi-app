@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>命理分析 · 多模块</title>
+<style>
+  :root{--bg:#f6f3ec;--card:#fffdf8;--ink:#2b2620;--ink2:#6b6257;--line:#e4dccd;--red:#b23a2e;--gold:#a8853f;--green:#3f6b52;--blue:#3a5a7a;--shadow:0 6px 24px rgba(60,45,25,.08)}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei","Noto Sans SC",sans-serif;line-height:1.7;font-size:15px}
+  .wrap{max-width:880px;margin:0 auto;padding:18px 14px 90px}
+  header{text-align:center;padding:14px 0 8px}
+  header h1{margin:0;font-size:22px;letter-spacing:4px;font-weight:600}
+  header h1 span{color:var(--red)}
+  header p{margin:6px 0 0;color:var(--ink2);font-size:12px;letter-spacing:1px}
+  .tabs{display:flex;gap:6px;overflow-x:auto;padding:10px 2px;position:sticky;top:0;background:var(--bg);z-index:20;-webkit-overflow-scrolling:touch}
+  .tabs button{flex:0 0 auto;font:inherit;font-size:13px;padding:8px 14px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink2);cursor:pointer;transition:.18s}
+  .tabs button.on{background:var(--red);border-color:var(--red);color:#fff;font-weight:600}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;box-shadow:var(--shadow);padding:16px;margin:12px 0}
+  .drop{border:2px dashed #d6c9b0;border-radius:12px;padding:28px 14px;text-align:center;cursor:pointer;transition:.2s;background:linear-gradient(180deg,#fffdf8,#faf5ea)}
+  .drop:hover,.drop.over{border-color:var(--gold);background:#fdf7ea}
+  .drop .big{font-size:14px;font-weight:600;margin-bottom:4px}
+  .drop .sub{color:var(--ink2);font-size:12px}
+  #previewBox{display:none;margin-top:12px;text-align:center}
+  #previewBox img{max-width:100%;max-height:280px;border-radius:10px;border:1px solid var(--line)}
+  .row{display:flex;gap:10px;flex-wrap:wrap;margin-top:12px}
+  button.act{cursor:pointer;border:none;border-radius:10px;padding:11px 20px;font:inherit;transition:.18s}
+  .primary{background:var(--red);color:#fff;flex:1;min-width:140px;font-weight:600}
+  .primary:disabled{background:#cbb9b4;cursor:not-allowed}
+  .ghost{background:#fff;border:1px solid var(--line);color:var(--ink2)}
+  .ghost:hover{border-color:var(--gold);color:var(--ink)}
+  .fields{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:12px}
+  .fields label{font-size:12px;color:var(--ink2);display:block;margin-bottom:4px}
+  .fields input,.fields select,.fields textarea{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:8px;background:#fff;font:inherit;color:var(--ink)}
+  .fields textarea{min-height:74px;resize:vertical}
+  .chips{display:flex;gap:7px;flex-wrap:wrap;margin-top:12px}
+  .chip{font-size:12px;padding:6px 12px;border-radius:999px;border:1px solid var(--line);background:#fff;color:var(--ink2);cursor:pointer}
+  .chip.on{background:#f6ecd8;border-color:var(--gold);color:#7a5c26;font-weight:600}
+  .status{margin-top:10px;font-size:12px;color:var(--ink2);min-height:18px}
+  .status .step{display:flex;align-items:center;gap:7px;margin:3px 0}
+  .dot{width:8px;height:8px;border-radius:50%;background:#d8cfc0;flex:0 0 auto}
+  .dot.on{background:var(--gold);box-shadow:0 0 0 3px rgba(168,133,63,.18)}
+  .dot.ok{background:var(--green)}
+  .dot.err{background:var(--red)}
+  h2{font-size:16px;margin:0 0 10px;font-weight:600;display:flex;align-items:center;gap:8px}
+  h2::before{content:"";width:4px;height:16px;background:var(--red);border-radius:2px;display:inline-block}
+  h3{font-size:14px;margin:14px 0 6px}
+  .badges{display:flex;gap:7px;flex-wrap:wrap;margin-top:10px}
+  .badge{background:#f3ecdd;border:1px solid var(--line);border-radius:999px;padding:3px 11px;font-size:12px;color:var(--ink2)}
+  .badge b{color:var(--red);font-weight:600}
+  table.chart{width:100%;border-collapse:collapse;font-size:12px}
+  table.chart td,table.chart th{padding:7px 5px;text-align:center;border-bottom:1px solid var(--line)}
+  table.chart th{color:var(--ink2);font-weight:500;font-size:11px}
+  .gan,.zhi{font-size:20px;font-weight:700}
+  .mini{font-size:11px;color:var(--ink2);line-height:1.5}
+  .wx{display:grid;gap:6px;margin-top:6px}
+  .wx .item{display:grid;grid-template-columns:26px 1fr 40px;align-items:center;gap:8px;font-size:12px}
+  .bar{height:8px;background:#efe8da;border-radius:6px;overflow:hidden}
+  .bar i{display:block;height:100%;border-radius:6px}
+  .tag{font-size:11px;padding:2px 9px;border-radius:6px;background:#f6efe0;border:1px solid #e8dcc6;color:#7a5c26;margin:2px}
+  .tag.chong{background:#fbeeec;border-color:#f0cfc9;color:#a33b30}
+  .tag.he{background:#eef4ef;border-color:#cfe0d4;color:#3f6b52}
+  .verify{border:1px solid var(--line);border-left:4px solid var(--gold);border-radius:10px;padding:13px;margin-bottom:10px;background:#fffdf6}
+  .verify .hd{display:flex;gap:7px;flex-wrap:wrap;align-items:center;margin-bottom:6px}
+  .verify .no{background:var(--gold);color:#fff;border-radius:6px;font-size:11px;padding:1px 8px;font-weight:600}
+  .verify .period{font-weight:600;font-size:13px}
+  .verify .age,.verify .domain{font-size:11px;color:var(--ink2);background:#f3ecdd;border-radius:5px;padding:1px 7px}
+  .verify .ev{font-size:13px;margin:4px 0}
+  .verify .ba{font-size:11px;color:var(--ink2);border-top:1px dashed var(--line);padding-top:6px;margin-top:4px}
+  .sec{margin-bottom:12px}
+  .sec .lab{font-size:12px;font-weight:600;color:var(--red);margin-bottom:2px}
+  .sec .txt{font-size:13px;white-space:pre-wrap}
+  table.dy td{padding:6px 4px;font-size:11px;text-align:center;border-bottom:1px solid var(--line)}
+  table.dy tr.cur{background:#fdf3e2}
+  .issues{border:1px solid #f0cfc9;background:#fdf6f4;border-radius:10px;padding:12px;margin-bottom:9px}
+  .issues .p{font-size:13px;font-weight:600;color:#a33b30}
+  .issues .r,.issues .f{font-size:12px;color:var(--ink2);margin-top:3px}
+  .warn{border:1px solid #f0d9a8;background:#fffaee;border-radius:10px;padding:10px;font-size:12px;color:#8a6a20;margin-bottom:10px}
+  .err{color:var(--red);font-size:13px;white-space:pre-wrap}
+  .chat{margin-top:12px}
+  .msgs{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+  .msg{max-width:86%;padding:9px 13px;border-radius:12px;font-size:13px;white-space:pre-wrap;line-height:1.65}
+  .msg.user{align-self:flex-end;background:var(--red);color:#fff;border-bottom-right-radius:4px}
+  .msg.ai{align-self:flex-start;background:#fff;border:1px solid var(--line);border-bottom-left-radius:4px}
+  .chatbar{display:flex;gap:8px}
+  .chatbar input{flex:1;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit;font-size:13px;background:#fff}
+  .chatbar button{flex:0 0 auto;padding:10px 16px;border-radius:10px;background:var(--red);color:#fff;border:none;font:inherit;font-size:13px;cursor:pointer}
+  .foot{text-align:center;color:#9b9184;font-size:11px;margin-top:18px;line-height:1.9}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:#2b2620;color:#fff;padding:9px 16px;border-radius:10px;font-size:12px;opacity:0;pointer-events:none;transition:.25s;z-index:99}
+  .toast.show{opacity:.95}
+  .hidden{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <h1>问 <span>命</span> · 命理分析</h1>
+    <p>八字 / 紫微 / 面相 / 手相 / 风水 / 占卜 · 可对话追问</p>
+  </header>
+
+  <nav class="tabs" id="tabs"></nav>
+  <div id="panels"></div>
+
+  <div class="foot">
+    命理与相术属传统文化推演，结果仅供娱乐与自我观察，不构成任何决策依据。<br>
+    本工具在你本机运行，图片只发往模型接口用于识别与分析。
+  </div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+(function () {
+  'use strict';
+  var $ = function (id) { return document.getElementById(id); };
+
+  // 访问口令：公网穿透时网址带 ?t=口令，存起来并自动加到所有 API 请求头
+  var TOKEN = (function () {
+    try {
+      var q = new URLSearchParams(location.search).get('t');
+      if (q) { localStorage.setItem('bazi_token', q); return q; }
+      return localStorage.getItem('bazi_token') || '';
+    } catch (e) { return ''; }
+  })();
+  (function patchFetch() {
+    var _fetch = window.fetch.bind(window);
+    window.fetch = function (url, opts) {
+      opts = opts || {};
+      if (typeof url === 'string' && url.indexOf('/api/') === 0 && TOKEN) {
+        opts.headers = Object.assign({}, opts.headers, { 'x-access-token': TOKEN });
+      }
+      return _fetch(url, opts).then(function (r) {
+        if (r.status === 401) toast('需要访问口令：请用完整网址（含 ?t=…）打开本页');
+        return r;
+      });
+    };
+  })();
+  function toast(m) { var t = $('toast'); t.textContent = m; t.classList.add('show'); clearTimeout(t._t); t._t = setTimeout(function () { t.classList.remove('show'); }, 1800); }
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  // ---------------- 模块定义 ----------------
+  var MODS = [
+    { id: 'bazi', name: '八字', image: true, manual: true, focus: true,
+      hint: '上传问真八字等排盘截图（含四柱天干地支）',
+      sub: '也可在下方手动填四柱，识别不准时用这个' },
+    { id: 'ziwei', name: '紫微斗数', image: true,
+      hint: '上传文墨天机/问真紫微命盘截图',
+      sub: '需能看清十二宫与主星' },
+    { id: 'face', name: '面相', image: true,
+      hint: '上传清晰的正面人脸照片',
+      sub: '建议光线均匀、无美颜滤镜、正对镜头' },
+    { id: 'palm', name: '手相', image: true,
+      hint: '上传清晰的手掌照片',
+      sub: '掌心平整、纹路清晰、光线充足' },
+    { id: 'fengshui', name: '住宅风水', image: true,
+      hint: '上传户型平面图或房屋照片',
+      sub: '补充朝向与房间信息会更准' },
+    { id: 'divination', name: '占卜', image: false,
+      hint: '输入你想问的事，程序按当前时间起梅花卦',
+      sub: '一事一占，问得越具体越准' },
+    { id: 'rectify', name: '生时校正', image: false, skipPanel: true }
+  ];
+
+  var FOCUS_LIST = ['事业', '财运', '婚恋', '健康', '子女', '学业'];
+  var st = {}; // 每模块状态
+
+  // ---------------- 构建 UI ----------------
+  var tabsHtml = MODS.map(function (m, i) {
+    return '<button data-tab="' + m.id + '" class="' + (i === 0 ? 'on' : '') + '">' + m.name + '</button>';
+  }).join('');
+  $('tabs').innerHTML = tabsHtml;
+
+  var panelsHtml = MODS.map(function (m, i) {
+    if (m.skipPanel) return '';
+    var h = '<section class="panel' + (i === 0 ? '' : ' hidden') + '" id="p-' + m.id + '"><div class="card">';
+    if (m.image) {
+      h += '<div class="drop" id="drop-' + m.id + '"><div class="big">' + m.hint + '</div><div class="sub">点击 / 拖拽 / Ctrl+V 粘贴</div>' +
+           '<input type="file" id="file-' + m.id + '" accept="image/*" hidden></div>' +
+           '<div class="previewBox" id="pv-' + m.id + '"><img id="img-' + m.id + '"></div>';
+    } else {
+      h += '<div class="fields"><div style="grid-column:1/-1"><label>' + m.hint + '</label>' +
+           '<textarea id="q-' + m.id + '" placeholder="例如：今年适不适合换工作？下个月面试能否通过？"></textarea></div></div>';
+    }
+    if (m.manual) {
+      h += '<div class="fields" id="manual-' + m.id + '">' +
+        '<div><label>年柱</label><input id="mYear" maxlength="2" placeholder="乙亥"></div>' +
+        '<div><label>月柱</label><input id="mMonth" maxlength="2" placeholder="己卯"></div>' +
+        '<div><label>日柱</label><input id="mDay" maxlength="2" placeholder="甲辰"></div>' +
+        '<div><label>时柱</label><input id="mHour" maxlength="2" placeholder="甲戌"></div>' +
+        '<div><label>性别</label><select id="mGender"><option value="女">女（坤造）</option><option value="男">男（乾造）</option></select></div>' +
+        '<div><label>公历生日</label><input id="mBirth" placeholder="1995-03-14 20:46"></div></div>';
+    }
+    if (m.id === 'fengshui') {
+      h += '<div class="fields">' +
+        '<div><label>朝向（坐→向）</label><input id="fsOrient" placeholder="坐北朝南"></div>' +
+        '<div><label>楼层</label><input id="fsFloor" placeholder="8/18"></div>' +
+        '<div><label>屋主生年</label><input id="fsYear" placeholder="1995"></div>' +
+        '<div><label>入户门方位</label><input id="fsDoor" placeholder="东/东南"></div>' +
+        '<div style="grid-column:1/-1"><label>补充说明</label><textarea id="fsExtra" placeholder="如：主卧在西南、厨房在西北、大门直通阳台…"></textarea></div></div>';
+    }
+    if (m.focus) {
+      h += '<div class="chips" id="focus-' + m.id + '">' + FOCUS_LIST.map(function (f) {
+        return '<span class="chip" data-f="' + f + '">' + f + '</span>';
+      }).join('') + '</div><div class="mini" style="margin-top:6px">可不选；选中则对该专项深入分析</div>';
+    }
+    h += '<div class="row"><button class="act primary" id="go-' + m.id + '">开始分析</button>' +
+         '<button class="act ghost" id="reset-' + m.id + '">重来</button></div>' +
+         '<div class="status" id="st-' + m.id + '"></div></div>' +
+         '<div id="r-' + m.id + '"></div></section>';
+    return h;
+  }).join('');
+  $('panels').innerHTML = panelsHtml;
+
+  // 选项卡
+  $('tabs').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-tab]'); if (!b) return;
+    var id = b.getAttribute('data-tab');
+    [].forEach.call($('tabs').children, function (x) { x.classList.toggle('on', x === b); });
+    MODS.forEach(function (m) { $('p-' + m.id).classList.toggle('hidden', m.id !== id); });
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  });
+
+  // ---------------- 每模块绑定 ----------------
+  MODS.forEach(function (m) {
+    st[m.id] = { image: null, result: null, chat: [], focus: [] };
+    if (m.skipPanel) return;
+    var d = $('drop-' + m.id);
+    if (d) {
+      d.addEventListener('click', function () { $('file-' + m.id).click(); });
+      ['dragenter', 'dragover'].forEach(function (ev) { d.addEventListener(ev, function (e) { e.preventDefault(); d.classList.add('over'); }); });
+      ['dragleave', 'drop'].forEach(function (ev) { d.addEventListener(ev, function (e) { e.preventDefault(); d.classList.remove('over'); }); });
+      d.addEventListener('drop', function (e) {
+        var f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
+        if (f) loadImg(m.id, f);
+      });
+      $('file-' + m.id).addEventListener('change', function (e) {
+        if (e.target.files && e.target.files[0]) loadImg(m.id, e.target.files[0]);
+      });
+    }
+    if (m.focus) {
+      $('focus-' + m.id).addEventListener('click', function (e) {
+        var c = e.target.closest('.chip'); if (!c) return;
+        c.classList.toggle('on');
+        var f = c.getAttribute('data-f');
+        var i = st[m.id].focus.indexOf(f);
+        if (i >= 0) st[m.id].focus.splice(i, 1); else st[m.id].focus.push(f);
+      });
+    }
+    $('go-' + m.id).addEventListener('click', function () { run(m.id); });
+    $('reset-' + m.id).addEventListener('click', function () {
+      st[m.id] = { image: null, result: null, chat: [], focus: [] };
+      var pv = $('pv-' + m.id); if (pv) pv.style.display = 'none';
+      $('r-' + m.id).innerHTML = '';
+      setStatus(m.id, null);
+      if (m.manual) ['mYear', 'mMonth', 'mDay', 'mHour', 'mBirth'].forEach(function (id) { var el = $(id); if (el) el.value = ''; });
+      if (m.id === 'divination') $('q-' + m.id).value = '';
+      if (m.focus) [].forEach.call($('focus-' + m.id).children, function (c) { c.classList.remove('on'); });
+    });
+  });
+
+  // 全局粘贴：粘到当前可见模块
+  document.addEventListener('paste', function (e) {
+    var items = (e.clipboardData && e.clipboardData.items) || [];
+    for (var i = 0; i < items.length; i++) {
+      if (items[i].type && items[i].type.indexOf('image/') === 0) {
+        var f = items[i].getAsFile();
+        if (f) { loadImg(activeMod(), f); toast('已粘贴截图'); }
+        return;
+      }
+    }
+  });
+  function activeMod() {
+    var el = document.querySelector('.panel:not(.hidden)');
+    return el ? el.id.replace('p-', '') : 'bazi';
+  }
+
+  function loadImg(id, f) {
+    if (!f.type || f.type.indexOf('image/') !== 0) { toast('请选择图片'); return; }
+    var fr = new FileReader();
+    fr.onload = function () {
+      st[id].image = fr.result;
+      var pv = $('pv-' + id), img = $('img-' + id);
+      if (img) img.src = fr.result;
+      if (pv) pv.style.display = 'block';
+      setStatus(id, [['已选择图片，点「开始分析」', 'ok']]);
+    };
+    fr.readAsDataURL(f);
+  }
+
+  function compress(dataUrl, maxW) {
+    return new Promise(function (resolve) {
+      var img = new Image();
+      img.onload = function () {
+        var scale = Math.min(1, (maxW || 1200) / img.naturalWidth);
+        var cv = document.createElement('canvas');
+        cv.width = Math.round(img.naturalWidth * scale);
+        cv.height = Math.round(img.naturalHeight * scale);
+        var ctx = cv.getContext('2d');
+        ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, cv.width, cv.height);
+        ctx.drawImage(img, 0, 0, cv.width, cv.height);
+        resolve(cv.toDataURL('image/jpeg', 0.86));
+      };
+      img.src = dataUrl;
+    });
+  }
+
+  function setStatus(id, steps) {
+    var el = $('st-' + id); if (!el) return;
+    if (!steps) { el.innerHTML = ''; return; }
+    el.innerHTML = steps.map(function (s) {
+      return '<div class="step"><span class="dot ' + (s[1] || '') + '"></span><span>' + esc(s[0]) + '</span></div>';
+    }).join('');
+  }
+
+  function busy(id, on) {
+    var b = $('go-' + id); if (b) { b.disabled = on; b.textContent = on ? '分析中…' : '开始分析'; }
+  }
+
+  // 提交异步任务并轮询结果（云平台请求有超时，长任务必须走这个）
+  function jobRun(url, payload, onTick) {
+    return fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) throw new Error(j.error || '提交失败');
+      if (!j.jobId) return j; // 兼容同步返回
+      return new Promise(function (resolve, reject) {
+        var started = Date.now(), timer = setInterval(function () {
+          var elapsed = Math.round((Date.now() - started) / 1000);
+          if (onTick) onTick(elapsed);
+          if (elapsed > 900) { clearInterval(timer); reject(new Error('任务超时（超过 15 分钟）')); return; }
+          fetch('/api/job/' + j.jobId).then(function (r) { return r.json(); }).then(function (s) {
+            if (!s.ok) { clearInterval(timer); reject(new Error(s.error || '查询任务失败')); return; }
+            if (s.status === 'done') { clearInterval(timer); resolve(s.result); }
+            else if (s.status === 'error') { clearInterval(timer); reject(new Error(s.error || '分析失败')); }
+          }).catch(function () { /* 单次轮询失败忽略，继续 */ });
+        }, 1500);
+      });
+    });
+  }
+
+  // ---------------- 运行 ----------------
+  function run(id) {
+    var m = MODS.filter(function (x) { return x.id === id; })[0];
+    var s = st[id];
+    var payload = { module: id, params: {}, focus: s.focus };
+
+    if (id === 'divination') {
+      var q = $('q-divination').value.trim();
+      if (!q) { toast('请先输入你想问的事'); return; }
+      payload.text = q;
+    } else if (m.manual) {
+      var y = $('mYear').value.trim(), mo = $('mMonth').value.trim(), d = $('mDay').value.trim(), h = $('mHour').value.trim();
+      if (y && mo && d && h) {
+        payload.chart = { year: y, month: mo, day: d, hour: h };
+        payload.gender = $('mGender').value;
+        payload.birth = $('mBirth').value.trim();
+      }
+    }
+
+    if (id === 'fengshui') {
+      payload.params = {
+        orientation: $('fsOrient').value.trim(),
+        floor: $('fsFloor').value.trim(),
+        birthYear: $('fsYear').value.trim(),
+        door: $('fsDoor').value.trim(),
+        extra: $('fsExtra').value.trim()
+      };
+    }
+
+    var needsImage = ['bazi', 'ziwei', 'face', 'palm', 'fengshui'].indexOf(id) >= 0;
+    if (needsImage && !s.image && !payload.chart && id !== 'fengshui') { toast('请先上传图片'); return; }
+    if (id === 'fengshui' && !s.image && !payload.params.extra && !payload.params.orientation) { toast('请上传户型图，或至少填写朝向/补充说明'); return; }
+
+    busy(id, true);
+    setStatus(id, [['① 识别图片…', 'on'], ['② 计算…', ''], ['③ 联网生成分析（约 2-4 分钟）…', '']]);
+    var t1 = setTimeout(function () { setStatus(id, [['① 识别完成', 'ok'], ['② 计算中…', 'on'], ['③ 联网生成分析…', '']]); }, 10000);
+    var t2 = setTimeout(function () { setStatus(id, [['① 识别完成', 'ok'], ['② 完成', 'ok'], ['③ 正在联网深度分析（约 2-4 分钟，推理模型较慢）…', 'on']]); }, 20000);
+
+    var doPost = function (img) {
+      if (img) payload.image = img;
+      var url = (id === 'bazi' && payload.chart) || id !== 'bazi' ? '/api/module' : '/api/analyze';
+      if (id === 'bazi') url = '/api/analyze';
+      var t0 = Date.now();
+      jobRun(url, payload, function (elapsed) {
+        setStatus(id, [['① 识别并计算完成', 'ok'], ['② 联网深度分析中 ' + elapsed + ' 秒（通常 2-4 分钟）…', 'on']]);
+      })
+        .then(function (j) {
+          clearTimeout(t1); clearTimeout(t2);
+          if (!j.ok) throw new Error(j.error || '分析失败');
+          j._secs = ((Date.now() - t0) / 1000).toFixed(1);
+          st[id].result = j;
+          st[id].chat = [];
+          setStatus(id, [['分析完成，用时 ' + j._secs + ' 秒', 'ok']]);
+          render(id, j);
+          toast('分析完成');
+        })
+        .catch(function (e) {
+          clearTimeout(t1); clearTimeout(t2);
+          setStatus(id, [['失败：' + e.message, 'err']]);
+          $('r-' + id).innerHTML = '<div class="card"><div class="err">' + esc(e.message) + '</div></div>';
+        })
+        .then(function () { busy(id, false); });
+    };
+
+    if (s.image) compress(s.image, 1200).then(doPost);
+    else doPost(null);
+  }
+
+  // ---------------- 渲染 ----------------
+  var WXC = { 木: '#4e7a4a', 火: '#b23a2e', 土: '#a8853f', 金: '#8a8f99', 水: '#3a5a7a' };
+  var LABELS = {
+    chart_confirm: '总判', geju_analysis: '格局与旺衰', yongshen_analysis: '喜用神', verifications: '三条验证',
+    personality: '性格', career: '事业与学业', wealth: '财运', marriage: '婚恋', health: '健康', family: '六亲',
+    focus_analysis: '专项分析', dayun_forecast: '大运走势', recent_years: '近期流年', advice: '建议', disclaimer: '免责声明',
+    features_summary: '特征复述', overall: '总体格局', sanjing: '三停', wuguan: '五官', shi_er_gong: '十二宫要点',
+    qise: '气色与神态', fortune: '运势倾向', suggestions: '建议',
+    palm_shape: '掌形与手型', shenmingxian: '生命线', zhihuixian: '智慧线', ganqingxian: '感情线', fuye: '事业线与辅线',
+    layout: '户型格局', quejiao: '缺角与形煞', men: '大门与入户', keting: '客厅', woshi: '卧室与床位',
+    chufang: '厨房', weishengjian: '卫生间', caiwei: '财位与文昌位', issues: '需要注意的问题',
+    pan_summary: '命盘要点', minggong: '命宫', shengong: '身宫', geju: '格局', sihua: '四化', daxian: '大限',
+    gua: '本卦', tixiang: '体用分析', hugua: '互卦（过程）', biangua: '变卦（结果）', duan: '综合断语', yingqi: '应期'
+  };
+  var SECTION_ORDER = ['chart_confirm', 'geju_analysis', 'yongshen_analysis', 'verifications', 'pan_summary', 'minggong', 'shengong',
+    'gua', 'tixiang', 'hugua', 'biangua', 'duan', 'yingqi',
+    'features_summary', 'overall', 'sanjing', 'wuguan', 'shi_er_gong', 'qise', 'palm_shape', 'shenmingxian', 'zhihuixian',
+    'ganqingxian', 'fuye', 'layout', 'quejiao', 'men', 'keting', 'woshi', 'chufang', 'weishengjian', 'caiwei', 'issues',
+    'personality', 'career', 'wealth', 'marriage', 'health', 'family', 'focus_analysis',
+    'fortune', 'dayun_forecast', 'recent_years', 'advice', 'suggestions', 'disclaimer'];
+
+  function renderSection(k, v) {
+    var label = LABELS[k] || k;
+    if (k === 'verifications' && Array.isArray(v)) {
+      if (!v.length) return '';
+      var h = '<div class="card"><h2>三条验证（供你核对）</h2>' +
+        '<div class="mini" style="margin-bottom:10px">依据已过的大运/流年推断。相符可提升可信度；不符则说明该断法在此命例失效。</div>';
+      v.slice(0, 3).forEach(function (x, i) {
+        h += '<div class="verify"><div class="hd"><span class="no">#' + (i + 1) + '</span>' +
+          (x.period ? '<span class="period">' + esc(x.period) + '</span>' : '') +
+          (x.age ? '<span class="age">' + esc(x.age) + '</span>' : '') +
+          (x.domain ? '<span class="domain">' + esc(x.domain) + '</span>' : '') + '</div>' +
+          '<div class="ev">' + esc(x.event) + '</div>' + (x.basis ? '<div class="ba">依据：' + esc(x.basis) + '</div>' : '') + '</div>';
+      });
+      return h + '</div>';
+    }
+    if (k === 'issues' && Array.isArray(v)) {
+      if (!v.length) return '';
+      return '<div class="card"><h2>需要注意的问题</h2>' + v.map(function (x) {
+        return '<div class="issues"><div class="p">' + esc(x.problem) + '</div>' +
+          (x.reason ? '<div class="r">原理：' + esc(x.reason) + '</div>' : '') +
+          (x.fix ? '<div class="f">化解：' + esc(x.fix) + '</div>' : '') + '</div>';
+      }).join('') + '</div>';
+    }
+    if (k === 'shi_er_gong' && Array.isArray(v)) {
+      if (!v.length) return '';
+      return '<div class="card"><h2>十二宫要点</h2>' + v.map(function (x) {
+        return '<div class="sec"><div class="lab">' + esc(x.gong) + '</div><div class="txt">' + esc(x.text) + '</div></div>';
+      }).join('') + '</div>';
+    }
+    if (k === 'focus_analysis' && Array.isArray(v)) {
+      if (!v.length) return '';
+      return '<div class="card"><h2>专项分析</h2>' + v.map(function (x) {
+        return '<div class="sec"><div class="lab">' + esc(x.topic) + '</div><div class="txt">' + esc(x.text) + '</div></div>';
+      }).join('') + '</div>';
+    }
+    if (k === 'dayun_forecast' && Array.isArray(v)) {
+      if (!v.length) return '';
+      return '<div class="card"><h2>大运走势</h2>' + v.map(function (x) {
+        return '<div class="sec"><div class="lab">' + esc(x.range) + '</div><div class="txt">' + esc(x.text) + '</div></div>';
+      }).join('') + '</div>';
+    }
+    if (k === 'recent_years' && Array.isArray(v)) {
+      if (!v.length) return '';
+      return '<div class="card"><h2>近期流年（实时）</h2>' + v.map(function (x) {
+        return '<div class="sec"><div class="lab">' + esc(x.year) + '</div><div class="txt">' + esc(x.text) + '</div></div>';
+      }).join('') + '</div>';
+    }
+    if (typeof v === 'string' && v.trim()) {
+      if (k === 'disclaimer') return '<div class="foot">' + esc(v) + '</div>';
+      var cls = (k === 'advice' || k === 'suggestions') ? 'card' : 'card';
+      return '<div class="' + cls + '"><h2>' + esc(label) + '</h2><div class="txt" style="font-size:13px;white-space:pre-wrap">' + esc(v) + '</div></div>';
+    }
+    return '';
+  }
+
+  function render(id, j) {
+    var h = '';
+    if (j.module === 'bazi') h += renderBazi(j);
+    if (j.module === 'divination') h += renderGua(j.gua);
+    if (j.module === 'ziwei' && j.extracted) h += renderZiweiPan(j.extracted);
+    if (j.extracted && (j.module === 'face' || j.module === 'palm' || j.module === 'fengshui')) h += renderExtract(j.module, j.extracted);
+
+    if (j.warnings && j.warnings.length) {
+      h += '<div class="card">' + j.warnings.map(function (w) { return '<div class="warn">⚠ ' + esc(w) + '</div>'; }).join('') + '</div>';
+    }
+
+    var a = j.analysis || {};
+    var seen = {};
+    SECTION_ORDER.forEach(function (k) {
+      if (a[k] !== undefined && a[k] !== null && a[k] !== '') { seen[k] = 1; h += renderSection(k, a[k]); }
+    });
+    Object.keys(a).forEach(function (k) { if (!seen[k]) h += renderSection(k, a[k]); });
+
+    // 工具条
+    h += '<div class="card" style="padding:13px"><div class="row" style="margin-top:0">' +
+      '<button class="act ghost" id="copy-' + id + '">复制结果</button>' +
+      '<button class="act ghost" id="again-' + id + '">再算一次</button></div>' +
+      '<div class="mini" style="margin-top:8px">分析时间：' + esc(new Date(j.analyzedAt).toLocaleString('zh-CN')) +
+      '｜用时：' + j._secs + 's</div></div>';
+
+    // 对话
+    h += '<div class="card chat"><h2>继续问（一问一答）</h2>' +
+      '<div class="mini" style="margin-bottom:10px">基于本次分析追问，例如「我今年几月换工作最有利？」「我适合做哪类行业？」</div>' +
+      '<div class="msgs" id="msgs-' + id + '"></div>' +
+      '<div class="chatbar"><input id="ci-' + id + '" placeholder="输入你的问题…">' +
+      '<button id="cs-' + id + '">发送</button></div></div>';
+
+    $('r-' + id).innerHTML = h;
+
+    $('copy-' + id).addEventListener('click', function () {
+      var t = $('r-' + id).innerText;
+      if (navigator.clipboard) navigator.clipboard.writeText(t).then(function () { toast('已复制'); });
+      else toast('请手动选择复制');
+    });
+    $('again-' + id).addEventListener('click', function () { $('go-' + id).click(); });
+    $('cs-' + id).addEventListener('click', function () { sendChat(id); });
+    $('ci-' + id).addEventListener('keydown', function (e) { if (e.key === 'Enter') sendChat(id); });
+
+    $('r-' + id).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function renderBazi(j) {
+    var e = j.engine, h = '<div class="card"><h2>排盘</h2>';
+    h += '<table class="chart"><tr><th></th>' + e.pillars.map(function (p) { return '<th>' + p.cn + '</th>'; }).join('') + '</tr>';
+    h += '<tr><td class="mini">十神</td>' + e.pillars.map(function (p) { return '<td class="mini">' + esc(p.ganShishen) + '</td>'; }).join('') + '</tr>';
+    h += '<tr><td class="mini">天干</td>' + e.pillars.map(function (p) { return '<td><span class="gan" style="color:' + (WXC[p.ganWx] || '#333') + '">' + esc(p.gan) + '</span></td>'; }).join('') + '</tr>';
+    h += '<tr><td class="mini">地支</td>' + e.pillars.map(function (p) { return '<td><span class="zhi" style="color:' + (WXC[p.zhiWx] || '#333') + '">' + esc(p.zhi) + '</span></td>'; }).join('') + '</tr>';
+    h += '<tr><td class="mini">藏干</td>' + e.pillars.map(function (p) { return '<td class="mini">' + p.hidden.map(function (x) { return esc(x.gan) + '(' + esc(x.shishen) + ')'; }).join('<br>') + '</td>'; }).join('') + '</tr>';
+    h += '<tr><td class="mini">星运</td>' + e.pillars.map(function (p) { return '<td class="mini">' + esc(p.xingyun) + '</td>'; }).join('') + '</tr>';
+    h += '<tr><td class="mini">纳音</td>' + e.pillars.map(function (p) { return '<td class="mini">' + esc(p.nayin) + '</td>'; }).join('') + '</tr>';
+    h += '<tr><td class="mini">旬空</td>' + e.pillars.map(function (p) { return '<td class="mini">' + esc(p.xunkong.join('')) + '</td>'; }).join('') + '</tr></table>';
+    h += '<div class="badges"><span class="badge">日主 <b>' + esc(e.dayGan) + '（' + esc(e.dayWx) + '）</b></span>' +
+      '<span class="badge">格局 <b>' + esc(e.geju) + '</b></span><span class="badge">旺衰 <b>' + esc(e.strengthLabel) + '</b></span>' +
+      '<span class="badge">' + (e.gender === '女' ? '坤造' : '乾造') + '</span>' +
+      (e.birth ? '<span class="badge">' + esc(e.birth) + '</span>' : '') + '</div>';
+    h += '<h3>五行占比</h3><div class="wx">' + Object.keys(e.wxPercent).map(function (k) {
+      return '<div class="item"><span style="color:' + WXC[k] + ';font-weight:600">' + k + '</span>' +
+        '<span class="bar"><i style="width:' + e.wxPercent[k] + '%;background:' + WXC[k] + '"></i></span>' +
+        '<span class="mini" style="text-align:right">' + e.wxPercent[k] + '%</span></div>';
+    }).join('') + '</div>';
+    if (e.relations.length) {
+      h += '<h3>地支关系</h3><div>' + e.relations.map(function (r) {
+        var cls = r.type.indexOf('冲') >= 0 ? 'chong' : (r.type.indexOf('合') >= 0 ? 'he' : '');
+        return '<span class="tag ' + cls + '" title="' + esc(r.note) + '">' + esc(r.type) + ' ' + esc(r.detail) + '</span>';
+      }).join('') + '</div>';
+    }
+    h += '<h3>大运（当前高亮）</h3><table class="dy"><tr><th>年份</th><th>大运</th><th>十神</th><th>岁数</th></tr>';
+    e.dayun.slice(0, 8).forEach(function (d) {
+      var cur = e.current.dayun && e.current.dayun.index === d.index;
+      h += '<tr class="' + (cur ? 'cur' : '') + '"><td>' + esc(d.years) + '</td><td>' + esc(d.ganzhi) + '</td><td>' + esc(d.ganShishen) + '/' + esc(d.zhiShishen) + '</td><td>' + d.startAge + '-' + d.endAge + '</td></tr>';
+    });
+    h += '</table>';
+    h += '<div class="mini" style="margin-top:6px">当前流年：' + e.current.liunian.year + ' ' + e.current.liunian.ganzhi + '（' + e.current.liunian.shishen + '）</div>';
+    return h + '</div>';
+  }
+
+  function renderGua(g) {
+    if (!g) return '';
+    return '<div class="card"><h2>卦象</h2>' +
+      '<div class="badges"><span class="badge">本卦 <b>' + esc(g.ben.name) + '</b></span>' +
+      '<span class="badge">互卦 <b>' + esc(g.hu.name || '—') + '</b></span>' +
+      '<span class="badge">变卦 <b>' + esc(g.bian.name || '—') + '</b></span>' +
+      '<span class="badge">动爻 <b>第 ' + g.dong + ' 爻</b></span>' +
+      '<span class="badge">体 <b>' + esc(g.ti) + '</b>（' + esc(g.tiWx) + '）</span>' +
+      '<span class="badge">用 <b>' + esc(g.yong) + '</b>（' + esc(g.yongWx) + '）</span>' +
+      '<span class="badge">' + esc(g.relation) + '</span></div>' +
+      '<div class="mini" style="margin-top:8px">起卦：' + esc(g.qiguaTime) + '（' + esc(g.shichen) + '，梅花时间起卦）</div></div>';
+  }
+
+  function renderZiweiPan(x) {
+    var h = '<div class="card"><h2>命盘识别</h2><div class="badges">';
+    if (x.gender) h += '<span class="badge">' + esc(x.gender) + '</span>';
+    if (x.wuxingju) h += '<span class="badge">五行局 <b>' + esc(x.wuxingju) + '</b></span>';
+    if (x.mingzhu) h += '<span class="badge">命主 <b>' + esc(x.mingzhu) + '</b></span>';
+    if (x.shenzhu) h += '<span class="badge">身主 <b>' + esc(x.shenzhu) + '</b></span>';
+    if (x.shengong) h += '<span class="badge">身宫 <b>' + esc(x.shengong) + '</b></span>';
+    h += '</div>';
+    if (x.minggong) {
+      h += '<div class="mini" style="margin-top:8px">命宫：' + esc(x.minggong.gan || '') + esc(x.minggong.zhi || '') +
+        (x.minggong.stars && x.minggong.stars.length ? ' ｜ 主星：' + esc(x.minggong.stars.join('、')) : '') + '</div>';
+    }
+    if (x.sihua) {
+      h += '<div class="mini" style="margin-top:4px">四化：禄 ' + esc(x.sihua.lu || '—') + '；权 ' + esc(x.sihua.quan || '—') +
+        '；科 ' + esc(x.sihua.ke || '—') + '；忌 ' + esc(x.sihua.ji || '—') + '</div>';
+    }
+    if (x.gongs && x.gongs.length) {
+      h += '<table class="chart" style="margin-top:10px"><tr><th>宫</th><th>干支</th><th>主星</th><th>大限</th></tr>' + x.gongs.map(function (g) {
+        return '<tr><td>' + esc(g.name) + '</td><td>' + esc((g.gan || '') + (g.zhi || '')) + '</td><td class="mini">' + esc((g.stars || []).join('、')) + '</td><td class="mini">' + esc(g.daxian || '') + '</td></tr>';
+      }).join('') + '</table>';
+    }
+    return h + '</div>';
+  }
+
+  function renderExtract(mod, x) {
+    var title = { face: '面部特征识别', palm: '掌纹特征识别', fengshui: '户型识别' }[mod] || '识别结果';
+    var skip = { error: 1 };
+    var kv = Object.keys(x).filter(function (k) { return !skip[k]; }).map(function (k) {
+      var v = x[k];
+      if (Array.isArray(v)) v = v.join('、');
+      if (typeof v === 'object') v = JSON.stringify(v);
+      return '<div class="sec"><div class="lab">' + esc(k) + '</div><div class="txt">' + esc(String(v)) + '</div></div>';
+    }).join('');
+    return '<div class="card"><h2>' + title + '</h2>' + kv + '</div>';
+  }
+
+  // ---------------- 对话 ----------------
+  function buildContext(j) {
+    var o = { module: j.module, analysis: j.analysis };
+    if (j.chart) o.chart = j.chart;
+    if (j.engine) {
+      o.engine = {
+        pillars: j.engine.pillars.map(function (p) { return p.cn + p.raw; }),
+        dayGan: j.engine.dayGan, geju: j.engine.geju, strength: j.engine.strengthLabel,
+        yongshen: j.engine.yongshen.desc, wxPercent: j.engine.wxPercent,
+        current: j.engine.current, dayun: j.engine.dayun.slice(0, 6)
+      };
+    }
+    if (j.extracted) o.extracted = j.extracted;
+    if (j.gua) o.gua = { ben: j.gua.ben, hu: j.gua.hu, bian: j.gua.bian, ti: j.gua.ti, yong: j.gua.yong, relation: j.gua.relation };
+    return JSON.stringify(o).slice(0, 6000);
+  }
+
+  function sendChat(id) {
+    var inp = $('ci-' + id), q = inp.value.trim();
+    if (!q) return;
+    var s = st[id];
+    if (!s.result) { toast('请先完成一次分析'); return; }
+    inp.value = '';
+    s.chat.push({ role: 'user', content: q });
+    paintChat(id, '思考中…');
+    fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ module: id, context: buildContext(s.result), messages: s.chat })
+    }).then(function (r) { return r.json(); }).then(function (j) {
+      if (!j.ok) throw new Error(j.error || '对话失败');
+      s.chat.push({ role: 'assistant', content: j.reply });
+      paintChat(id, null);
+    }).catch(function (e) {
+      s.chat.pop();
+      paintChat(id, null);
+      toast('失败：' + e.message);
+    });
+  }
+
+  function paintChat(id, pending) {
+    var box = $('msgs-' + id); if (!box) return;
+    var s = st[id];
+    var h = s.chat.map(function (m) {
+      return '<div class="msg ' + (m.role === 'user' ? 'user' : 'ai') + '">' + esc(m.content) + '</div>';
+    }).join('');
+    if (pending) h += '<div class="msg ai">' + esc(pending) + '</div>';
+    box.innerHTML = h;
+    box.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }
+
+  // ---------------- 生时校正 ----------------
+  var DIZHI = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+  var RC = { candidates: DIZHI.slice(), events: [{ year: '', type: '婚姻/恋爱', note: '' }], types: [] };
+
+  $('panels').insertAdjacentHTML('beforeend',
+    '<section class="panel hidden" id="p-rectify"><div class="card">' +
+      '<div class="mini" style="margin-bottom:10px">用法：先在「八字」模块识别出 <b>年柱 / 月柱 / 日柱</b> 填到这里；候选时辰可全选，事件越具体越能区分。' +
+      '原理：时辰无法直接算出，只能比较「哪个时辰能解释更多已知事件」。</div>' +
+      '<div class="fields">' +
+        '<div><label>出生公历年</label><input id="rcBirthYear" placeholder="1995"></div>' +
+        '<div><label>性别</label><select id="rcGender"><option value="女">女</option><option value="男">男</option></select></div>' +
+        '<div><label>年柱</label><input id="rcYear" maxlength="2" placeholder="乙亥"></div>' +
+        '<div><label>月柱</label><input id="rcMonth" maxlength="2" placeholder="己卯"></div>' +
+        '<div><label>日柱</label><input id="rcDay" maxlength="2" placeholder="甲辰"></div>' +
+      '</div>' +
+      '<div class="mini" style="margin-top:12px">候选时辰（不确定就全选）</div>' +
+      '<div class="chips" id="rcChips"></div>' +
+      '<div class="mini" style="margin-top:12px">已知重大事件（年份 + 类型，可加多条）</div>' +
+      '<div id="rcEvents"></div>' +
+      '<div class="row"><button class="act ghost" id="rcAdd">+ 添加一条</button></div>' +
+      '<div class="row"><button class="act primary" id="rcGo">开始校正</button><button class="act ghost" id="rcReset">重来</button></div>' +
+      '<div class="status" id="st-rectify"></div>' +
+    '</div><div id="r-rectify"></div></section>');
+
+  function rcPaintChips() {
+    $('rcChips').innerHTML = DIZHI.map(function (z) {
+      return '<span class="chip' + (RC.candidates.indexOf(z) >= 0 ? ' on' : '') + '" data-z="' + z + '">' + z + '</span>';
+    }).join('');
+  }
+  function rcPaintEvents() {
+    var types = RC.types.length ? RC.types : ['婚姻/恋爱', '生育/添丁', '工作/升职', '学业/考试', '财运/置业', '搬迁/远行', '破财/负债', '疾病/受伤', '亲人离世', '官非/纠纷', '感情不顺/分手'];
+    $('rcEvents').innerHTML = RC.events.map(function (ev, i) {
+      var opts = types.map(function (t) { return '<option' + (t === ev.type ? ' selected' : '') + '>' + t + '</option>'; }).join('');
+      return '<div class="fields" data-i="' + i + '" style="border-top:1px dashed var(--line);padding-top:8px;margin-top:4px">' +
+        '<div><label>年份</label><input class="evYear" maxlength="4" placeholder="2018" value="' + esc(ev.year || '') + '"></div>' +
+        '<div><label>类型</label><select class="evType">' + opts + '</select></div>' +
+        '<div><label>备注（可选）</label><input class="evNote" placeholder="换工作到外地" value="' + esc(ev.note || '') + '"></div>' +
+        '<div><label>&nbsp;</label><button class="act ghost evDel" style="width:100%">删除</button></div></div>';
+    }).join('');
+  }
+  rcPaintChips(); rcPaintEvents();
+
+  $('rcChips').addEventListener('click', function (e) {
+    var c = e.target.closest('.chip'); if (!c) return;
+    var z = c.getAttribute('data-z'), i = RC.candidates.indexOf(z);
+    if (i >= 0) { if (RC.candidates.length === 1) { toast('至少保留一个候选时辰'); return; } RC.candidates.splice(i, 1); }
+    else RC.candidates.push(z);
+    rcPaintChips();
+  });
+  $('rcEvents').addEventListener('input', function (e) {
+    var row = e.target.closest('[data-i]'); if (!row) return;
+    var ev = RC.events[Number(row.getAttribute('data-i'))];
+    if (e.target.classList.contains('evYear')) ev.year = e.target.value.replace(/\D/g, '');
+    if (e.target.classList.contains('evNote')) ev.note = e.target.value;
+  });
+  $('rcEvents').addEventListener('change', function (e) {
+    var row = e.target.closest('[data-i]'); if (!row) return;
+    if (e.target.classList.contains('evType')) RC.events[Number(row.getAttribute('data-i'))].type = e.target.value;
+  });
+  $('rcEvents').addEventListener('click', function (e) {
+    if (!e.target.classList.contains('evDel')) return;
+    var row = e.target.closest('[data-i]'); if (!row) return;
+    if (RC.events.length === 1) { toast('至少保留一条'); return; }
+    RC.events.splice(Number(row.getAttribute('data-i')), 1); rcPaintEvents();
+  });
+  $('rcAdd').addEventListener('click', function () {
+    RC.events.push({ year: '', type: RC.types[0] || '婚姻/恋爱', note: '' }); rcPaintEvents();
+  });
+  $('rcReset').addEventListener('click', function () {
+    RC.candidates = DIZHI.slice(); RC.events = [{ year: '', type: '婚姻/恋爱', note: '' }];
+    ['rcBirthYear', 'rcYear', 'rcMonth', 'rcDay'].forEach(function (id) { $(id).value = ''; });
+    $('r-rectify').innerHTML = ''; setStatus('rectify', null);
+    rcPaintChips(); rcPaintEvents();
+  });
+
+  $('rcGo').addEventListener('click', function () {
+    var year = $('rcYear').value.trim(), month = $('rcMonth').value.trim(), day = $('rcDay').value.trim();
+    if (year.length !== 2 || month.length !== 2 || day.length !== 2) { toast('请完整填写年柱/月柱/日柱（各两字）'); return; }
+    var birthYear = Number($('rcBirthYear').value.trim());
+    if (!birthYear || birthYear < 1900) { toast('请填写四位出生公历年（用于定位大运）'); return; }
+    var evs = RC.events.filter(function (e) { return /^\d{4}$/.test(String(e.year).trim()); })
+      .map(function (e) { return { year: Number(String(e.year).trim()), type: e.type, note: e.note }; });
+    if (!evs.length) { toast('请至少填一条带四位年份的事件'); return; }
+
+    var btn = $('rcGo'); btn.disabled = true; btn.textContent = '校正中…';
+    var t0 = Date.now();
+    setStatus('rectify', [['① 逐时辰确定性打分…', 'ok'], ['② 联网生成结论（约 1-2 分钟）…', 'on']]);
+    jobRun('/api/rectify', { year: year, month: month, day: day, birthYear: birthYear, gender: $('rcGender').value, candidates: RC.candidates.slice(), events: evs },
+      function (el) { setStatus('rectify', [['① 打分完成', 'ok'], ['② 模型分析中 ' + el + ' 秒…', 'on']]); })
+      .then(function (j) {
+      if (!j.ok) throw new Error(j.error || '校正失败');
+      if (j.eventTypes) RC.types = j.eventTypes;
+      j._secs = ((Date.now() - t0) / 1000).toFixed(1);
+      rcRender(j);
+      setStatus('rectify', [['校正完成，用时 ' + j._secs + ' 秒', 'ok']]);
+    }).catch(function (e) {
+      setStatus('rectify', [['失败：' + e.message, 'err']]);
+    }).then(function () { btn.disabled = false; btn.textContent = '开始校正'; });
+  });
+
+  function rcRender(j) {
+    var evCount = j.input.events.length;
+    var h = '<div class="card"><h2>时辰排序（确定性打分）</h2>' +
+      '<div class="mini" style="margin-bottom:8px">得分来自「该时辰下的流年/大运/喜忌能否解释这些事件」，不是玄学直觉。命中＝该时辰能正向解释的事件数。</div>' +
+      '<table class="chart"><tr><th>排名</th><th>时辰</th><th>得分</th><th>命中</th><th>格局/旺衰</th></tr>';
+    j.ranking.forEach(function (r) {
+      h += '<tr' + (r.rank === 1 ? ' class="cur"' : '') + '><td>' + r.rank + '</td><td><b>' + esc(r.hour) + '</b><br><span class="mini">' + esc(r.zhi) + '时</span></td>' +
+        '<td>' + r.score + '</td><td>' + r.hits + '/' + evCount + '</td><td class="mini">' + esc(r.geju) + '<br>' + esc(r.strength) + '</td></tr>';
+    });
+    h += '</table></div>';
+
+    var c = j.conclusion || {};
+    if (c.best) {
+      h += '<div class="card"><h2>校正结论</h2>' +
+        '<div class="badges"><span class="badge">最可能 <b>' + esc(c.best_hour || c.best) + '</b></span>' +
+        '<span class="badge">置信度 <b>' + esc(c.confidence || '—') + '</b></span></div>' +
+        '<div class="sec" style="margin-top:10px"><div class="lab">理由</div><div class="txt">' + esc(c.reason) + '</div></div>';
+      if (Array.isArray(c.event_match) && c.event_match.length) {
+        h += '<h3>事件吻合度</h3>' + c.event_match.map(function (x) {
+          return '<div class="sec"><div class="lab">' + esc(x.event) + '　·　' + esc(x.fit) + '</div><div class="txt">' + esc(x.why) + '</div></div>';
+        }).join('');
+      }
+      if (c.daily_check) h += '<div class="sec"><div class="lab">可用来自查的细节</div><div class="txt">' + esc(c.daily_check) + '</div></div>';
+      if (c.caveat) h += '<div class="sec"><div class="lab">不确定性与补充建议</div><div class="txt">' + esc(c.caveat) + '</div></div>';
+      h += '<div class="row"><button class="act primary" id="rcUse">用「' + esc(c.best_hour || c.best) + '」去分析八字</button></div></div>';
+    } else {
+      h += '<div class="card"><div class="warn">⚠ 模型结论生成失败：' + esc(c.error || '未知原因') + '。上面的打分排序仍然可用。</div></div>';
+    }
+    if (c.disclaimer) h += '<div class="foot">' + esc(c.disclaimer) + '</div>';
+
+    $('r-rectify').innerHTML = h;
+    var useBtn = $('rcUse');
+    if (useBtn) useBtn.addEventListener('click', function () {
+      document.querySelector('[data-tab="bazi"]').click();
+      $('mYear').value = j.input.year; $('mMonth').value = j.input.month; $('mDay').value = j.input.day;
+      $('mHour').value = c.best_hour || (c.best + '');
+      $('mGender').value = j.input.gender; $('mBirth').value = '';
+      toast('已填入八字模块，点「开始分析」即可');
+    });
+    $('r-rectify').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // 启动自检
+  fetch('/api/health').then(function (r) { return r.json(); }).then(function (j) {
+    if (!j.visionKeyConfigured || !j.analysisKeyConfigured) {
+      setStatus('bazi', [['⚠ 有 API key 未配置，请检查 config.json', 'err']]);
+    }
+    if (j.eventTypes && j.eventTypes.length && !RC.types.length) { RC.types = j.eventTypes; rcPaintEvents(); }
+    // 手机访问提示
+    if (j.lanUrls && j.lanUrls.length && /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)) {
+      var el = document.createElement('div');
+      el.className = 'mini';
+      el.style.cssText = 'text-align:center;margin-top:8px;color:#3f6b52;background:#eef4ef;border:1px solid #cfe0d4;border-radius:8px;padding:6px 10px';
+      el.innerHTML = '📱 手机访问（同一 Wi-Fi）：<b>' + j.lanUrls[0] + '</b>';
+      document.querySelector('header').appendChild(el);
+    }
+  }).catch(function () { setStatus('bazi', [['⚠ 后端未启动：请先运行 node server.js', 'err']]); });
+})();
+</script>
+</body>
+</html>

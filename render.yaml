@@ -1,0 +1,32 @@
+# Render 免费部署蓝图
+# 用法：把这个仓库连到 Render，New > Blueprint，选中本文件即可
+services:
+  - type: web
+    name: bazi-app
+    runtime: node
+    plan: free
+    region: singapore
+    buildCommand: npm install --omit=dev
+    startCommand: node server.js
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_VERSION
+        value: "24"
+      # ↓ 这两个是密钥，部署时在 Render 控制台填（sync:false = 不写进仓库）
+      - key: VISION_API_KEY
+        sync: false
+      - key: ANALYSIS_API_KEY
+        sync: false
+      - key: ACCESS_TOKEN
+        generateValue: true
+      - key: VISION_BASE_URL
+        value: https://opencode.ai/zen/go/v1/chat/completions
+      - key: VISION_MODEL
+        value: deepseek-v4.1-flash
+      - key: ANALYSIS_BASE_URL
+        value: https://api.deepseek.com/chat/completions
+      - key: ANALYSIS_MODEL
+        value: deepseek-v4-pro
+      - key: ANALYSIS_MAX_TOKENS
+        value: "16000"

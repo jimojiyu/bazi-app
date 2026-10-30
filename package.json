@@ -1,0 +1,13 @@
+{
+  "name": "bazi-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "命理分析工具：八字 / 紫微斗数 / 面相 / 手相 / 住宅风水 / 占卜 / 生时校正，支持对话追问",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
