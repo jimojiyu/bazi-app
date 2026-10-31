@@ -332,7 +332,7 @@ async function handleChat(req, res) {
 }
 
 // ---------------- 路由 ----------------
-const server = http.createServer(async (req, res) => {
+async function handleRequest(req, res) {
   const u = new URL(req.url, 'http://localhost');
   const pathname = u.pathname;
   try {
@@ -368,8 +368,14 @@ const server = http.createServer(async (req, res) => {
       });
     }
     if (req.method === 'POST' && (pathname === '/api/analyze' || pathname === '/api/module' || pathname === '/api/rectify')) {
+      const cfgS = loadConfig();
       const body = JSON.parse((await readBody(req)) || '{}');
       const fns = { '/api/analyze': computeAnalyze, '/api/module': computeModule, '/api/rectify': computeRectify };
+      // Serverless 平台（Vercel 等）没有常驻内存，无法跨请求保存任务队列，改同步返回
+      if (process.env.SYNC_MODE === '1' || cfgS.syncMode) {
+        const result = await fns[pathname](body);
+        return sendJson(res, 200, result);
+      }
       const jobId = newJob(pathname, () => fns[pathname](body));
       return sendJson(res, 200, { ok: true, jobId, status: 'running' });
     }
@@ -386,22 +392,27 @@ const server = http.createServer(async (req, res) => {
     console.error('[error]', e.message);
     sendJson(res, 500, { ok: false, error: e.message || String(e) });
   }
-});
+}
 
-const cfg = loadConfig();
-const HOST = process.env.HOST || cfg.host || '0.0.0.0';
-server.listen(cfg.port, HOST, () => {
-  console.log('==============================================');
-  console.log('  命理分析工具（网页版）已启动');
-  console.log('  本机访问：   http://127.0.0.1:' + cfg.port);
-  const urls = lanUrls(cfg.port);
-  if (urls.length) {
-    console.log('  手机访问（同一 Wi-Fi 下）：');
-    urls.forEach((u) => console.log('               ' + u));
-  } else {
-    console.log('  未检测到局域网 IP，手机可能无法访问');
-  }
-  console.log('  视觉：' + cfg.vision.model + '  分析：' + cfg.analysis.model);
-  console.log('  模块：八字/紫微/面相/手相/风水/占卜/生时校正 + 对话');
-  console.log('==============================================');
-});
+// 本地 / 云主机：自己监听端口；Serverless（Vercel）只导出 handler，由平台调用
+if (require.main === module) {
+  const cfg = loadConfig();
+  const HOST = process.env.HOST || cfg.host || '0.0.0.0';
+  http.createServer(handleRequest).listen(cfg.port, HOST, () => {
+    console.log('==============================================');
+    console.log('  命理分析工具（网页版）已启动');
+    console.log('  本机访问：   http://127.0.0.1:' + cfg.port);
+    const urls = lanUrls(cfg.port);
+    if (urls.length) {
+      console.log('  手机访问（同一 Wi-Fi 下）：');
+      urls.forEach((u) => console.log('               ' + u));
+    } else {
+      console.log('  未检测到局域网 IP，手机可能无法访问');
+    }
+    console.log('  视觉：' + cfg.vision.model + '  分析：' + cfg.analysis.model);
+    console.log('  模块：八字/紫微/面相/手相/风水/占卜/生时校正 + 对话');
+    console.log('==============================================');
+  });
+}
+
+module.exports = handleRequest;

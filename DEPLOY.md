@@ -140,7 +140,21 @@ https://bazi-app-xxxx.onrender.com/?t=你复制的ACCESS_TOKEN
 - **401**：网址没带 `?t=口令`，或口令和 Render 里的 `ACCESS_TOKEN` 不一致。
 - **改了代码怎么更新**：在 GitHub 网页重新上传改动文件，Render 会自动重新部署（`autoDeploy: true`）。
 
-## 八、安全提醒
+## 八、省钱配置（重要）
+
+默认已配置为**全部走中转站**，不消耗你自己的 DeepSeek 官方额度：
+
+| 用途 | 走哪里 | key |
+|---|---|---|
+| 识图（vision） | 中转站 | `oc_sk_...` |
+| 分析（analysis） | 中转站 | `oc_sk_...` |
+| 联网搜索（仅本地 DSH 会话用） | DeepSeek 官方 | `sk-...`（每次约 2k token，几分钱） |
+
+- 若想改回官方分析：`ANALYSIS_BASE_URL=https://api.deepseek.com/chat/completions`、`ANALYSIS_API_KEY=sk-...`；
+- 官方模型里 `deepseek-flash` 比 `deepseek-v4-pro` 便宜很多（非推理模型、无思维链），但断事细腻度会下降；
+- 中转站是朋友的额度，长期高频使用请先和对方确认；且识别/分析内容会经过中转站服务方。
+
+## 九、安全提醒
 
 - 公网部署**必须设 `ACCESS_TOKEN`**，否则任何人都能调用、烧你的额度；
 - key 只放服务器/环境变量，不要提交到公开仓库；

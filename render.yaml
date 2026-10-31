@@ -13,7 +13,9 @@ services:
     envVars:
       - key: NODE_VERSION
         value: "24"
-      # ↓ 这两个是密钥，部署时在 Render 控制台填（sync:false = 不写进仓库）
+      # ↓ 密钥在 Render 控制台填（sync:false = 不写进仓库）
+      # 想省钱：两个 key 都填中转站的 oc_sk_...，两个 BASE_URL 都指向中转站
+      # 想用官方：ANALYSIS_BASE_URL 改成 https://api.deepseek.com/chat/completions，ANALYSIS_API_KEY 填 sk-...
       - key: VISION_API_KEY
         sync: false
       - key: ANALYSIS_API_KEY
@@ -25,7 +27,7 @@ services:
       - key: VISION_MODEL
         value: deepseek-v4.1-flash
       - key: ANALYSIS_BASE_URL
-        value: https://api.deepseek.com/chat/completions
+        value: https://opencode.ai/zen/go/v1/chat/completions
       - key: ANALYSIS_MODEL
         value: deepseek-v4-pro
       - key: ANALYSIS_MAX_TOKENS
